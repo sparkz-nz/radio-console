@@ -146,13 +146,16 @@ TokenizedLine tokenizeLine(Buffer* buffer) {
         // first part is the char or an escape sequence or a ':' if nothing defined
         char c = buffer->getNext();
         if (c == ':') {
-            result.response[i].character = '\0'; // null indicates undefined action
-            continue;
+            c = '\0';
+            Log.trace(F("No character to send (:)" CR));
+            // result.response[i].character = '\0'; // null indicates undefined action
+            // continue;
         }
         else {
             if (c == '\\') c = parseEscapeSequence(buffer);
         }
         result.response[i].character = c;
+        Log.trace(F("adding character %X" CR), (int)c);
 
         // next part should be zero or more modifiers terminated by ':' or '\0'
         int numModifiers = 0;

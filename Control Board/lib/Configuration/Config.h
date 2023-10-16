@@ -14,16 +14,16 @@
 #define RIGHTCTRL  0b00000010
 #define RIGHTALT   0b00000001
 
-#define NUMENCODERS 4
-#define NUMSWITCHES 8
+#define NUMENCODERS 6
+#define NUMSWITCHES 20
 #define NUMMODES    5
 
 #define EEPROM_CONFIG_ADDR 0x300
 
 
 struct SwitchResponse {
-  char character = '\0';
-  char modifiers[MAXMODIFIERS] = {0};
+  uint8_t character = '\0';
+  uint8_t modifiers[MAXMODIFIERS] = {0};
 };
 
 struct SwitchConfig {

@@ -10,8 +10,8 @@ Encoder::Encoder(int pinA, int pinB) {
     pinMode(pinB, INPUT_PULLUP);
 }
 
-int Encoder::Value() {
-    int v = value;
+int8_t Encoder::Value() {
+    int8_t v = value;
     value = 0;
     return v;
 }

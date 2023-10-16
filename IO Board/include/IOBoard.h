@@ -5,10 +5,11 @@
 
 #define IOBOARD_NUMENCODERS 3
 #define IOBOARD_NUMSWITCHES 9
+#define IOBOARD_BASEADDRESS 8
 
 struct DataPacket {
-    uint8_t encoders[IOBOARD_NUMENCODERS];
-    uint8_t switches[IOBOARD_NUMSWITCHES];
+    int8_t encoders[IOBOARD_NUMENCODERS];
+    int8_t switches[IOBOARD_NUMSWITCHES];
 };
 
 struct IOBoard {

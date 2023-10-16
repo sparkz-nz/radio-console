@@ -15,6 +15,7 @@ const char sRG[]   PROGMEM = "RG";         const byte kRG    PROGMEM = KEY_RIGHT
 const char sF1[]   PROGMEM = "F1";         const byte kF1    PROGMEM = KEY_F1;
 const char sF2[]   PROGMEM = "F2";         const byte kF2    PROGMEM = KEY_F2;
 const char sESC[]  PROGMEM = "ESC";        const byte kESC   PROGMEM = KEY_ESC;
+const char sHold[] PROGMEM = "HOLD";       const byte kHold  PROGMEM = 0xFF;
 //const char s_[] PROGMEM = "";           const byte kc_ PROGMEM = ;
 /*const char s_[] PROGMEM = "";           const byte kc_RG PROGMEM = ;
 const char s_[] PROGMEM = "";           const byte kc_RG PROGMEM = ;
@@ -33,5 +34,5 @@ const char sEOL[] PROGMEM = "EOL";         const byte kEOL PROGMEM = 0;
 
 
 
-const char* const stringTable[] PROGMEM = {sbs, scln, sLC, sLS, sLA, sLG, sRC, sRS, sRA, sRG, sF1, sF2, sESC, sEOL};
-const byte keycodeTable[] PROGMEM =       {kbs, kcln, kLC, kLS, kLA, kLG, kRC, kRS, kRA, kRG, kF1, kF2, kESC, kEOL};
+const char* const stringTable[] PROGMEM = {sbs, scln, sLC, sLS, sLA, sLG, sRC, sRS, sRA, sRG, sF1, sF2, sESC, sHold, sEOL};
+const byte keycodeTable[] PROGMEM =       {kbs, kcln, kLC, kLS, kLA, kLG, kRC, kRS, kRA, kRG, kF1, kF2, kESC, kHold, kEOL};
