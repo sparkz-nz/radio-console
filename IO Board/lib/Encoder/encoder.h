@@ -7,10 +7,11 @@ class Encoder {
     public:
         Encoder(int pinA, int pinB);
         void Update();
-        int Value();
+        int8_t Value();
 
     private:
-        int state, value, direction;
+        int8_t value;
+        int state, direction;
         bool aRising, aFalling, bRising, bFalling;
         int pinA, pinB;
         bool lastA, lastB;
