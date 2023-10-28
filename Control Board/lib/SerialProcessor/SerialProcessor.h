@@ -7,49 +7,47 @@
 
 class SerialProcessor;
 
-class CommandLineProcessor {
+class CommandProcessor {
     public:
-        CommandLineProcessor() {};
+        CommandProcessor() {};
         SerialProcessor* serProc;
-        CommandLineProcessor(SerialProcessor *serialProc) : serProc(serialProc) {}
-        virtual void processLine(Buffer* buffer) {};
-        virtual void initProcess(Buffer* buffer) {
-            Log.trace(F("CommandLineProcessor::initProcess [%s](%d)" CR), buffer->getBuffer(), buffer->getIndex());
+        CommandProcessor(SerialProcessor *serialProc) : serProc(serialProc) {}
+        virtual void processCommand(Buffer* buffer) {};
+        virtual void initCommandProcessor(Buffer* buffer) {
+            Log.trace(F("CommandLineProcessor::initCommandProcessor [%s](%d)" CR), buffer->getBuffer(), buffer->getIndex());
         };
     private:
 };
 
-class CmdProc : public CommandLineProcessor {
+class DefaultCmdProc : public CommandProcessor {
     public:
-        void processLine(Buffer* buffer);
+        void initCommandProcessor(Buffer* buffer);
+        void processCommand(Buffer* buffer);
 };
 
 struct Command {
     const char* cmdString;
-    CommandLineProcessor* processor;
+    CommandProcessor* processor;
     Command* next;
 };
 
-class SerialProcessor : public CommandLineProcessor {
+class SerialProcessor : public CommandProcessor {
     public:
         SerialProcessor(Stream* serial);
         void checkSerial();
         bool read();
-        void debug();
-        void registerCommand(const char* command, CommandLineProcessor* cmdProc);
-        void setLineProcessor(CommandLineProcessor* lineProc);
+        void registerCommand(const char* command, CommandProcessor* cmdProc);
+        void setCommandProcessor(CommandProcessor* lineProc);
         void resetLineProcessor();
-        friend class CmdProc;
+        friend class DefaultCmdProc;
 
     private:
         Buffer _buffer;
         Stream *_serial;
-        CommandLineProcessor* currentLineProc;
+        CommandProcessor* currentCmdProc;
         Command* commandList = NULL;
-        CmdProc cmdProc;
+        DefaultCmdProc cmdProc;
 };
-
-
 
 struct KeyPtr {
     char kkey[10];

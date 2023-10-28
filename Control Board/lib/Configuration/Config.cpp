@@ -39,19 +39,19 @@ void Configuration::processLine(Buffer *buffer) {
     TokenizedLine tLine = tokenizeLine(buffer);
 
     if (tLine.switchType == None) {
-        Log.trace(F("Invalid configuration line '%s' ignored" CR), buffer->getBuffer());
+        Log.notice(F("Invalid switch type in line '%s' - ignored" CR), buffer->getBuffer());
         return;
     }
 
     if (tLine.switchType == Switch) {
-        if (tLine.switchNumber >= 0 && tLine.switchNumber < NUMSWITCHES) {
+        if (tLine.switchNumber > 0 && tLine.switchNumber <= NUMSWITCHES) {
             modes[tLine.mode].switches[tLine.switchNumber-1].response[0] = tLine.response[0];
             modes[tLine.mode].switches[tLine.switchNumber-1].response[1] = tLine.response[1];
         }
         else Log.error(F("Switch number %d out of bounds in line '%s'" CR), tLine.switchNumber, buffer->getBuffer());
     }
     else {
-        if (tLine.switchNumber >= 0 && tLine.switchNumber < NUMENCODERS) {
+        if (tLine.switchNumber > 0 && tLine.switchNumber <= NUMENCODERS) {
             modes[tLine.mode].encoders[tLine.switchNumber-1].response[0] = tLine.response[0];
             modes[tLine.mode].encoders[tLine.switchNumber-1].response[1] = tLine.response[1];
         }
@@ -78,12 +78,27 @@ void Configuration::processLine(Buffer *buffer) {
             Log.trace(")" CR);
         }
     }
-
-
 }
 
 void Configuration::clearConfig() {
-
+    for (int mode=0; mode < NUMMODES; mode++) {
+        for (int enc=0; enc < NUMENCODERS; enc++) {
+            for (int resp=0; resp < 2; resp++) {
+                modes[mode].encoders[enc].response[resp].character = '\0';
+                for (int mod=0; mod < MAXMODIFIERS; mod++) {
+                    modes[mode].encoders[enc].response[resp].modifiers[mod] = 0;
+                }
+            }
+        }
+        for (int sw=0; sw < NUMSWITCHES; sw++) {
+            for (int resp=0; resp < 2; resp++) {
+                modes[mode].switches[sw].response[resp].character = '\0';
+                for (int mod=0; mod < MAXMODIFIERS; mod++) {
+                    modes[mode].switches[sw].response[resp].modifiers[mod] = 0;
+                }
+            }
+        }
+    }
 }
 
 TokenizedLine tokenizeLine(Buffer* buffer) {

@@ -5,7 +5,7 @@
 #include <Buffer.h>
 #include "KeyMap.h"
 
-#define MAXMODIFIERS 4
+#define MAXMODIFIERS 2
 
 #define LEFTSHIFT  0b00100000
 #define LEFTCTRL   0b00010000
@@ -18,7 +18,7 @@
 #define NUMSWITCHES 20
 #define NUMMODES    5
 
-#define EEPROM_CONFIG_ADDR 0x300
+#define EEPROM_CONFIG_ADDR 0x0
 
 
 struct SwitchResponse {

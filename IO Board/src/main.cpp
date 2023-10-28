@@ -23,7 +23,7 @@ void setup() {
   // setup serial and logging
   Serial.begin(SERIAL_BAUD);
   while (!Serial);
-  Log.begin(LOG_LEVEL_VERBOSE, &Serial, false);
+  Log.begin(LOG_LEVEL_SILENT, &Serial, false);
 
   // setup pin modes and board address
   for (int i=0; i<IOBOARD_NUMSWITCHES; i++) {
@@ -65,9 +65,4 @@ void iicRequest() {
   }
 
   Wire.write(buffer, 12);
-
-  // for (int i=0; i<totalDevices-1; i++) {
-  //   Log.trace("%X ", buffer[i]);
-  // }
-  // Log.trace("%X" CR, buffer[11]);
 }

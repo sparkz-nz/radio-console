@@ -1,5 +1,4 @@
 #include <Arduino.h>
-#include <ArduinoLog.h>
 #include "Encoder.h"
 
 Encoder::Encoder(int pinA, int pinB) {
@@ -21,7 +20,6 @@ void Encoder::Update() {
     bool b = digitalRead(pinB);
 
     if (a == lastA && b == lastB) return;  // no change
-    //Log.trace("[%d]=%d [%d]=%d" CR, pinA, a, pinB, b);
 
     bool aFalling = (!a && lastA);
     bool aRising = (a && !lastA);

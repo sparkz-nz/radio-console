@@ -1,6 +1,5 @@
 #include <Arduino.h>
 #include <ArduinoLog.h>
-#include <EEPROM.h>
 #include <SerialProcessor.h>
 #include <Config.h>
 
@@ -8,23 +7,28 @@
 /**
  * Config
 */
-class ConfigCmdProcessor : public CommandLineProcessor {
+class ConfigCmdProcessor : public CommandProcessor {
     public:
         ConfigCmdProcessor(SerialProcessor *serialProc, Configuration *configuration)
-         : CommandLineProcessor(serialProc) {
+         : CommandProcessor(serialProc) {
             config=configuration;
         }
 
-        void processLine(Buffer* buffer) {
-            Log.trace(F("configCmdProcessor::processLine buffer='%s'" CR), buffer->getBuffer());
+        void initCommandProcessor(Buffer* buffer) override {
+            Log.notice(F("Config> "));
+        }
+
+        void processCommand(Buffer* buffer) override {
+            Log.trace(F("configCmdProcessor::processCommand buffer='%s'" CR), buffer->getBuffer());
             
             // if empty line, return to command processor 
             if (buffer->atEnd()) {
                 serProc->resetLineProcessor();
-                Log.trace(F("configCmdProcessor::processLine - buffer empty, resetting back to cmdProc" CR));
+                Log.trace(F("configCmdProcessor::processCommand - buffer empty, resetting back to cmdProc" CR));
+                return;
             }
-
             config->processLine(buffer);
+            Log.notice(F("Config> "));
         };
 
     private:
@@ -34,26 +38,26 @@ class ConfigCmdProcessor : public CommandLineProcessor {
 /**
  * Save
 */
-class SaveCmdProcessor : public CommandLineProcessor {
+class SaveCmdProcessor : public CommandProcessor {
     public:
         SaveCmdProcessor(SerialProcessor *serialProc, Configuration *configuration)
-        : CommandLineProcessor(serialProc) {
+        : CommandProcessor(serialProc) {
             config=configuration;
         }
 
-        void initProcess(Buffer* buffer) override {
-            Log.trace(F("Saving... "));
+        void initCommandProcessor(Buffer* buffer) override {
+            Log.notice(F("Saving... "));
             config->save();
-            Log.trace(F("done. Returning to cmdProc" CR));
+            Log.notice(F("done." CR));
             serProc->resetLineProcessor();
         }
 
-        void processLine(Buffer* buffer) {
-            Log.trace(F("SaveCmdProcessor::processLine buffer='%s' - this should never be called" CR), buffer->getBuffer());
+        void processCommand(Buffer* buffer) override {
+            Log.trace(F("SaveCmdProcessor::processCommand buffer='%s' - this should never be called" CR), buffer->getBuffer());
             // when all done reset processor 
             if (buffer->atEnd()) {
                 serProc->resetLineProcessor();
-                Log.trace(F("SaveCmdProcessor::processLine - buffer empty, resetting back to cmdProc" CR));
+                Log.trace(F("SaveCmdProcessor::processCommand - buffer empty, resetting back to cmdProc" CR));
                 }
         }
     private:
@@ -63,26 +67,95 @@ class SaveCmdProcessor : public CommandLineProcessor {
 /**
  * Load
 */
-class LoadCmdProcessor : public CommandLineProcessor {
+class LoadCmdProcessor : public CommandProcessor {
     public:
         LoadCmdProcessor(SerialProcessor *serialProc, Configuration *configuration)
-        : CommandLineProcessor(serialProc) {
+        : CommandProcessor(serialProc) {
             config=configuration;
         }
 
-        void initProcess(Buffer* buffer) override {
-            Log.trace(F("Loading... "));
+        void initCommandProcessor(Buffer* buffer) override {
+            Log.notice(F("Loading... "));
             config->load();
-            Log.trace(F("done. Returning to cmdProc" CR));
+            Log.notice(F("done." CR));
             serProc->resetLineProcessor();
         }
 
-        void processLine(Buffer* buffer) {
-            Log.trace(F("LoadCmdProcessor::processLine buffer='%s' - this should never be called" CR), buffer->getBuffer());
+        void processCommand(Buffer* buffer) override {
+            Log.trace(F("LoadCmdProcessor::processCommand buffer='%s' - this should never be called" CR), buffer->getBuffer());
             // when all done reset processor 
             if (buffer->atEnd()) {
                 serProc->resetLineProcessor();
-                Log.trace(F("LoadCmdProcessor::processLine - buffer empty, resetting back to cmdProc" CR));
+                Log.trace(F("LoadCmdProcessor::processCommand - buffer empty, resetting back to cmdProc" CR));
+                }
+        }
+    private:
+        Configuration* config;
+};
+
+/**
+ * Clear
+*/
+class ClearCmdProcessor : public CommandProcessor {
+    public:
+        ClearCmdProcessor(SerialProcessor *serialProc, Configuration *configuration)
+        : CommandProcessor(serialProc) {
+            config=configuration;
+        }
+
+        void initCommandProcessor(Buffer* buffer) override {
+            Log.notice(F("Clearing all config... "));
+            config->clearConfig();
+            Log.notice(F("done." CR));
+            serProc->resetLineProcessor();
+        }
+
+        void processCommand(Buffer* buffer) override {
+            Log.trace(F("ClearCmdProcessor::processCommand buffer='%s' - this should never be called" CR), buffer->getBuffer());
+            // when all done reset processor 
+            if (buffer->atEnd()) {
+                serProc->resetLineProcessor();
+                Log.trace(F("ClearCmdProcessor::processCommand - buffer empty, resetting back to cmdProc" CR));
+                }
+        }
+    private:
+        Configuration* config;
+};
+
+/**
+ * Output
+*/
+class OutputCmdProcessor : public CommandProcessor {
+    public:
+        OutputCmdProcessor(SerialProcessor *serialProc, Configuration *configuration)
+        : CommandProcessor(serialProc) {
+            config=configuration;
+        }
+
+        void initCommandProcessor(Buffer* buffer) override {
+            Log.trace(F("OutputCmdProcessor::processCommand buffer='%s'" CR), buffer->getBuffer());
+
+            if (strncasecmp("on", buffer->getBuffer()+7, 2) == 0) {
+                Log.setLevel(LOG_LEVEL_NOTICE);
+                Log.notice(F("Serial output enabled" CR));
+            }
+            if (strncasecmp("of", buffer->getBuffer()+7, 2) == 0) {
+                Log.notice(F("Turning serial output off" CR));
+                Log.setLevel(LOG_LEVEL_SILENT);
+            }
+            if (strncasecmp("tr", buffer->getBuffer()+7, 2) == 0) {
+                Log.setLevel(LOG_LEVEL_TRACE);
+                Log.notice(F("Serial output trace enables" CR));
+            }
+            serProc->resetLineProcessor();
+        }
+
+        void processCommand(Buffer* buffer) override {
+            Log.trace(F("OutputCmdProcessor::processCommand buffer='%s' - this should never be called" CR), buffer->getBuffer());
+            // when all done reset processor 
+            if (buffer->atEnd()) {
+                serProc->resetLineProcessor();
+                Log.trace(F("OutputCmdProcessor::processCommand - buffer empty, resetting back to cmdProc" CR));
                 }
         }
     private:
@@ -93,14 +166,14 @@ class LoadCmdProcessor : public CommandLineProcessor {
 /**
  * Dump
 */
-class DumpCmdProcessor : public CommandLineProcessor {
+class DumpCmdProcessor : public CommandProcessor {
     public:
         DumpCmdProcessor(SerialProcessor *serialProc, Configuration *configuration)
-         : CommandLineProcessor(serialProc) {
+         : CommandProcessor(serialProc) {
             config=configuration;
         }
 
-        void initProcess(Buffer *buffer) override {
+        void initCommandProcessor(Buffer *buffer) override {
             Log.notice(F("config" CR));
             for (int m = 0; m < NUMMODES; m++) {
                 for (int s = 0; s < NUMSWITCHES; s++) {
@@ -125,10 +198,12 @@ class DumpCmdProcessor : public CommandLineProcessor {
                     Log.notice("%c", c);
                 }
                 else {
-                    Log.notice("{%x}", int(c));
+                    Log.trace("{%x}", (uint8_t)c);
                 }
-                for (int mod = 0; (sc.response[response].modifiers[mod] != 0) && (mod < MAXMODIFIERS); mod++){
+                for (int mod = 0; mod < MAXMODIFIERS; mod++){
                     switch (uint8_t(sc.response[response].modifiers[mod])) {
+                        case 0:
+                            break; // no more modifiers
                         case KEY_LEFT_CTRL:
                             Log.notice("LC"); break;
                         case KEY_LEFT_SHIFT:
@@ -145,7 +220,7 @@ class DumpCmdProcessor : public CommandLineProcessor {
                             Log.notice("RA"); break;
                         case KEY_RIGHT_GUI:
                             Log.notice("RG"); break;
-                        default: Log.notice("Modifier not found %x", uint8_t(sc.response[response].modifiers[mod]), KEY_LEFT_CTRL);
+                        default: Log.notice("Modifier not found %x", uint8_t(sc.response[response].modifiers[mod]));
                     }
                 }
                 if (response == 0) Log.notice(":");
